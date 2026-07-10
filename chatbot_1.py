@@ -1,30 +1,37 @@
-import getpass
-api_key = getpass.getpass()
+# import getpass
+# api_key = getpass.getpass()
 
 # ✅ Import the Gemini SDK
 import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+api_key = os.getenv("GOOGLE_API_KEY")
 
 # ✅ Configure the SDK with your Gemini API key
 genai.configure(api_key=api_key)  # 🔒 Use getpass.getpass() for hidden input in production
 
 
 
-model = genai.GenerativeModel("gemini-3.5-flash") # API + What model i want to use
+model = genai.GenerativeModel("gemini-2.5-flash") # API + What model i want to use
 
 def single_query_chat(user_input):
 
   prompt = user_input
   response = model.generate_content(prompt) # named it this way
+  
+  return response.text
 
-# for m in genai.list_models() :  // genai.list_models() gives me list of those model which are present in generativeai module
+# for m in genai.list_models() :  # genai.list_models() gives me list of those model which are present in generativeai module
 #   print(m)
 
 
-  return response.text
+  
 
 
 def chat_with_gemini(user_input):
-    model = genai.GenerativeModel('gemini-3.5-flash')
+    model = genai.GenerativeModel('gemini-2.5-flash')
 
     # Create a custom role-based prompt or give model a persona 
     
@@ -55,4 +62,15 @@ def run_chatbot() :
       break
     response = chat_with_gemini(user_input)
     print(response)
-run_chatbot()
+
+
+import gradio as gr
+
+# Create a Gradio interface
+def chatbot_interface(user_input):
+    return chat_with_gemini(user_input)
+
+# Set up the Gradio interface
+iface = gr.Interface(fn=chatbot_interface, inputs="text", outputs="text", title="Gemini Chatbot",
+                     description="Chatbot powered by Gemini 2.5 flash. Ask me anything!")
+iface.launch(share= True)
